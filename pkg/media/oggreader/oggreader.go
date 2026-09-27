@@ -287,7 +287,7 @@ func (o *OggReader) ParseNextPage() ([]byte, *OggPageHeader, error) { //nolint:c
 
 	pageHeader.version = header[4]
 	pageHeader.headerType = header[5]
-	pageHeader.GranulePosition = binary.LittleEndian.Uint64(header[7 : 7+8])
+	pageHeader.GranulePosition = binary.LittleEndian.Uint64(header[6 : 6+8])
 	pageHeader.Serial = binary.LittleEndian.Uint32(header[14 : 14+4])
 	pageHeader.index = binary.LittleEndian.Uint32(header[18 : 18+4])
 	pageHeader.segmentsCount = header[26]
@@ -315,7 +315,7 @@ func (o *OggReader) ParseNextPage() ([]byte, *OggPageHeader, error) { //nolint:c
 
 		for index := range header {
 			// Don't include expected checksum in our generation
-			if index > 21 && index < 25 {
+			if index > 21 && index < 26 {
 				updateChecksum(0)
 
 				continue
@@ -335,7 +335,7 @@ func (o *OggReader) ParseNextPage() ([]byte, *OggPageHeader, error) { //nolint:c
 		}
 	}
 
-	o.bytesReadSuccesfully += int64(len(header) + len(payload))
+	o.bytesReadSuccesfully += int64(len(header) + len(sizeBuffer) + len(payload))
 
 	return payload, pageHeader, nil
 }
