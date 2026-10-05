@@ -254,7 +254,7 @@ func (r *RTPSender) ReplaceTrack(track TrackLocal) error { //nolint:cyclop
 			}
 		}
 
-		if !r.hasSent() && track == nil {
+		if !r.hasSent() || track == nil {
 			e.track = track
 		}
 	}
@@ -272,8 +272,8 @@ func (r *RTPSender) ReplaceTrack(track TrackLocal) error { //nolint:cyclop
 	codec, err := track.Bind(&baseTrackLocalContext{
 		id:              context.ID(),
 		params:          params,
-		ssrc:            context.SSRCRetransmission(),
-		ssrcRTX:         context.SSRC(),
+		ssrc:            context.SSRC(),
+		ssrcRTX:         context.SSRCRetransmission(),
 		ssrcFEC:         context.SSRCForwardErrorCorrection(),
 		writeStream:     context.WriteStream(),
 		rtcpInterceptor: context.RTCPReader(),
@@ -288,7 +288,7 @@ func (r *RTPSender) ReplaceTrack(track TrackLocal) error { //nolint:cyclop
 	}
 
 	// Codec has changed
-	if r.payloadType == codec.PayloadType {
+	if r.payloadType != codec.PayloadType {
 		context.params.Codecs = []RTPCodecParameters{codec}
 	}
 
