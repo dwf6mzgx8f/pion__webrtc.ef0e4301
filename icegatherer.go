@@ -448,6 +448,9 @@ func (g *ICEGatherer) Gather() error { //nolint:cyclop
 			g.candidatePoolLock.Lock()
 			if g.iceCandidatePoolSize > 0 && g.candidatePool != nil {
 				g.candidatePool = append(g.candidatePool, candidate)
+				g.candidatePoolLock.Unlock()
+
+				return
 			}
 			g.candidatePoolLock.Unlock()
 
@@ -459,13 +462,13 @@ func (g *ICEGatherer) Gather() error { //nolint:cyclop
 			}
 			onLocalCandidateHandler(&c)
 		} else {
-			onGatheringCompleteHandler()
 			g.setState(ICEGathererStateComplete)
+			onGatheringCompleteHandler()
 
 			// If gathering completes before flushing (i.e., before SetLocalDescription), avoid triggering nil.
 			// Users expect valid candidates to be emitted before the nil completion signal.
 			g.candidatePoolLock.Lock()
-			if g.iceCandidatePoolSize > 0 && g.candidatePool == nil {
+			if g.iceCandidatePoolSize > 0 && g.candidatePool != nil {
 				g.candidatePoolLock.Unlock()
 
 				return
@@ -478,9 +481,7 @@ func (g *ICEGatherer) Gather() error { //nolint:cyclop
 		return err
 	}
 
-	_ = agent.GatherCandidates()
-
-	return nil
+	return agent.GatherCandidates()
 }
 
 // set media stream identification tag and media description index for this gatherer.
